@@ -1,0 +1,63 @@
+html {
+    background: #333;
+    color: #fff;
+    width: 100%;
+    font: 16px Lato, Verdana, sans-serif;
+    text-align: center;
+}
+
+body {
+    margin: 1em auto;
+    width: 600px;
+}
+
+#grid div {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+#grid .dead {
+    background: #fff;
+}
+#grid .alive.age0 {
+    background: #EC485B;
+}
+#grid .alive.age1 {
+    background: #FF7863;
+}
+#grid .alive.age2 {
+    background: #FF9F63;
+}
+
+button {
+    display: inline-block;
+    height: 3em;
+    width: 50%;
+    border: none;
+    font: inherit;
+    background: #666;
+    color: #fff;
+    margin-top: .5em;
+}
+button + button {
+    border-left: 1px solid #333;
+}
+
+#rules {
+    display: block;
+    height: 1.5em;
+    width: 100%;
+    border: none;
+    font: inherit;
+    background: #666;
+    color: #fff;
+    margin-bottom: .5em;
+}
+
+#footer {
+    margin-top: 2em;
+}
+#footer a {
+    color: #fff;
+    text-decoration: none;
+}
