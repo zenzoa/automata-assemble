@@ -1,8 +1,12 @@
+@viewport {
+    width: 600px;
+}
+
 html {
     background: #333;
     color: #fff;
     width: 100%;
-    font: 16px Lato, Verdana, sans-serif;
+    font: 24px Lato, Verdana, sans-serif;
     text-align: center;
 }
 
