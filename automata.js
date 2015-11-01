@@ -267,9 +267,13 @@ $(document).ready( function () {
     Grid.draw();
 
     // Fill drop-down menu with rulesets.
-    $.each( Rules, function( name ){
+    $.each( Rules, function( name, ruleset ){
         var title = name.split( '_' ).join( ' ' );
-        $( '#rules' ).append( '<option value="'+ name +'">'+ title +'</option>' );
+        $( '#rules' ).append( '<option value="'+ name +'">'+
+                             title.toUpperCase() +
+                             ' &mdash; survive: ' + ruleset.survive.join('') +
+                             ' / born: ' + ruleset.born.join('') +
+                             '</option>' );
     });
     $( '#rules' ).change( function(){
         try {
