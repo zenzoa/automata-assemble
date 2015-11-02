@@ -206,7 +206,11 @@ var Grid = {
 
     // Grab a single cell from the grid.
     getCell: function( x, y ){
-        return Grid.cells[ Grid.width * y + x ];
+        var cell = Grid.cells[ Grid.width * y + x ];
+        if( cell === undefined || cell.x !== x || cell.y !== y ){
+            return undefined;
+        }
+        return cell;
     },
 
     // Returns an array of a cell's eight neighbors.
