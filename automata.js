@@ -87,6 +87,10 @@ var Rules = {
     walled_cities: {
         survive: [2,3,4,5],
         born: [4,5,6,7,8]
+    },
+    custom: {
+        survive: [],
+        born: []
     }
 };
 
@@ -168,6 +172,23 @@ var Grid = {
     width: 30,
     height: 20,
     cells: [],
+
+    // Fill screen with random cells.
+    fill: function(){
+        Grid.cells.forEach( function( cell ){
+            cell.changeState( Cell.randomState() );
+            cell.update();
+            cell.age = 0;
+        });
+    },
+
+    // Clear screen of all cells.
+    clear: function(){
+        Grid.cells.forEach( function( cell ){
+            cell.changeState( 'dead' );
+            cell.update();
+        });
+    },
 
     // Progress the cells to a new generation.
     step: function(){
@@ -261,45 +282,108 @@ var Grid = {
 
 };
 
-$(document).ready( function () {
-    // Initialize the world and its bitty inhabitants.
-    Grid.init();
-    Grid.draw();
+var Interface = {
+    intervalID: 0,
 
-    // Fill drop-down menu with rulesets.
-    $.each( Rules, function( name, ruleset ){
-        var title = name.split( '_' ).join( ' ' );
-        $( '#rules' ).append( '<option value="'+ name +'">'+
-                             title.toUpperCase() +
-                             ' &mdash; survive: ' + ruleset.survive.join('') +
-                             ' / born: ' + ruleset.born.join('') +
-                             '</option>' );
-    });
-    $( '#rules' ).change( function(){
+    // Fill drop-down list with available pre-set rulesets.
+    rulesPopulate: function(){
+        $.each( Rules, function( name, ruleset ){
+            var title = name.split( '_' ).join( ' ' );
+            $( '#ruleList' ).append( '<option value="'+ name +'">'+ title +'</option>' );
+        });
+    },
+
+    // When a ruleset is selected, change the rules and display them.
+    rulesChange: function(){
         try {
-            CurrentRules = Rules[ $( '#rules' ).val() ];
+            CurrentRules = Rules[ $( '#ruleList' ).val() ];
         } catch (e) {
             throw 'Requested ruleset does not exist.';
         }
-    });
+        $( "#rules button" ).removeClass( 'select' );
+        CurrentRules.survive.forEach( function( n ){
+            $( '#s' + n ).addClass( 'select' );
+        });
+        CurrentRules.born.forEach( function( n ){
+            $( '#b' + n ).addClass( 'select' );
+        });
+    },
 
-    var intervalID;
+    // When you click on born/survive buttons, change the rules.
+    rulesEdit: function(){
+        var newRules = Object.create( null );
+        newRules.survive = [];
+        newRules.born = [];
+
+        $( this ).toggleClass( 'select' );
+        $( '#ruleList' ).val( 'custom' );
+        for( var i=1; i<=8; i++ ){
+            if( $( '#s'+i ).hasClass( 'select' ) ){
+                newRules.survive.push(i);
+            }
+            if( $( '#b'+i ).hasClass( 'select' ) ){
+                newRules.born.push(i);
+            }
+        }
+        $.each( Rules, function( name, ruleset ){
+            if( ruleset.survive.length === newRules.survive.length &&
+                ruleset.born.length === newRules.born.length &&
+                ruleset.survive.every( function( n ){ return( newRules.survive.indexOf( n ) > -1 ); } ) &&
+                ruleset.born.every( function( n ){ return( newRules.born.indexOf( n ) > -1 ); } ) ){
+                $( '#ruleList' ).val( name );
+            }
+        });
+
+        CurrentRules = newRules;
+    },
 
     // When the Play button is pushed, toggle automatic play.
-    $( '#play' ).click( function() {
+    playCallback: function(){
         if( $( this ).hasClass( 'playing' ) ){
-            window.clearInterval(intervalID);
+            window.clearInterval( Interface.intervalID );
             $( this ).removeClass( 'playing' ).html( 'play' );
         } else {
-            intervalID = setInterval( Grid.step, 150 );
+            Interface.intervalID = setInterval( Grid.step, 150 );
             $( this ).addClass( 'playing' ).html( 'pause' );
         }
-    });
+    },
 
     // When the Next button is pushed, step the cellular automata.
-    $( '#step' ).click( function() {
+    stepCallback: function(){
         Grid.step();
-        window.clearInterval(intervalID);
+        window.clearInterval( Interface.intervalID );
         $( '#play' ).removeClass( 'playing' ).html( 'play' );
-    });
+    },
+
+    init: function(){
+        // Populate the interface.
+        Interface.rulesPopulate();
+        Interface.rulesChange();
+
+        // Attach callback functions to buttons etc.
+        $( '#ruleList' ).change( Interface.rulesChange );
+        $( '#rules button' ).click( Interface.rulesEdit );
+        $( '#play' ).click( Interface.playCallback );
+        $( '#step' ).click( Interface.stepCallback );
+        $( '#clear' ).click( function( event ){
+            event.preventDefault();
+            Grid.clear();
+            Grid.draw();
+        });
+        $( '#fill' ).click( function( event ){
+            event.preventDefault();
+            Grid.fill();
+            Grid.draw();
+        });
+
+        // Initialize the world and its bitty inhabitants.
+        Grid.init();
+        Grid.draw();
+    }
+};
+
+$( document ).ready( function(){
+
+    Interface.init();
+
 });
